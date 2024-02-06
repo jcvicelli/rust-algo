@@ -11,6 +11,68 @@
 
 use std::collections::HashMap;
 
+pub fn how_sum(target: i64, v: &Vec<i64>) -> Option<Vec<i64>> {
+    fn how_sum_memo(
+        target: i64,
+        v: &Vec<i64>,
+        memo: &mut HashMap<i64, Option<Vec<i64>>>,
+    ) -> Option<Vec<i64>> {
+        if memo.contains_key(&target) {
+            return memo.get(&target).unwrap().clone();
+        }
+
+        if target == 0 {
+            return Some(vec![]);
+        }
+        if target < 0 {
+            return None;
+        }
+
+        for num in v {
+            if let Some(mut res) = how_sum_memo(target - num, &v, memo) {
+                res.push(*num);
+                memo.insert(target, Some(res.clone()));
+                return Some(res);
+            }
+        }
+
+        memo.insert(target, None);
+        return None;
+    }
+
+    let mut memo = HashMap::new();
+    how_sum_memo(target, v, &mut memo)
+}
+
+pub fn can_sum(m: i64, v: &Vec<i64>) -> bool {
+    fn can_sum_memo(m: i64, v: &Vec<i64>, memo: &mut HashMap<i64, bool>) -> bool {
+        if memo.contains_key(&m) {
+            return *memo.get(&m).unwrap();
+        }
+
+        if m == 0 {
+            return true;
+        }
+        if m < 0 {
+            return false;
+        }
+
+        for num in v {
+            let result = m - num;
+            if can_sum_memo(result, &v, memo) {
+                memo.insert(m, true);
+                return true;
+            }
+        }
+
+        memo.insert(m, false);
+        return false;
+    }
+
+    let mut memo = HashMap::new();
+    can_sum_memo(m, v, &mut memo)
+}
+
 pub fn grid_traveler(m: u64, n: u64) -> u64 {
     // 2,3 -> 3
     //[1,1] -> 1
@@ -61,6 +123,24 @@ pub fn fib(x: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_how_sum() {
+        assert_eq!(Some(vec![4, 3]), how_sum(7, &[5, 3, 4, 7].to_vec()));
+        assert_eq!(Some(vec![]), how_sum(0, &[5, 3, 4, 7].to_vec()));
+        assert_eq!(None, how_sum(7, &[2, 4].to_vec()));
+        assert_eq!(Some(vec![1]), how_sum(1, &[1].to_vec()));
+        assert_eq!(None, how_sum(300, &[7, 14].to_vec()));
+    }
+
+    #[test]
+    fn test_can_sum() {
+        assert_eq!(true, can_sum(7, &[5, 3, 4, 7].to_vec()));
+        assert_eq!(true, can_sum(0, &[5, 3, 4, 7].to_vec()));
+        assert_eq!(false, can_sum(7, &[2, 4].to_vec()));
+        assert_eq!(true, can_sum(1, &[1].to_vec()));
+        assert_eq!(false, can_sum(300, &[7, 14].to_vec()));
+    }
 
     #[test]
     fn test_grid_traveler() {
