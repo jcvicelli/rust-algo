@@ -11,6 +11,28 @@
 
 use std::collections::HashMap;
 
+pub fn best_sum(target: i64, v: &Vec<i64>) -> Option<Vec<i64>> {
+    if target == 0 {
+        return Some(vec![]);
+    }
+    if target < 0 {
+        return None;
+    }
+
+    let mut shortest: Option<Vec<i64>> = None;
+
+    for num in v {
+        if let Some(mut res) = best_sum(target - num, &v) {
+            res.push(*num);
+            if shortest.is_none() || res.len() < shortest.as_ref().unwrap().len() {
+                shortest = Some(res);
+            }
+        }
+    }
+
+    return shortest;
+}
+
 pub fn how_sum(target: i64, v: &Vec<i64>) -> Option<Vec<i64>> {
     fn how_sum_memo(
         target: i64,
@@ -123,6 +145,15 @@ pub fn fib(x: u64) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_best_sum() {
+        assert_eq!(Some(vec![5, 3]), best_sum(8, &[2, 3, 5].to_vec()));
+        assert_eq!(Some(vec![]), best_sum(0, &[5, 3, 4, 7].to_vec()));
+        assert_eq!(None, best_sum(7, &[2, 4].to_vec()));
+        assert_eq!(Some(vec![4, 4]), best_sum(8, &[1, 4, 5].to_vec()));
+        // assert_eq!(None, best_sum(300, &[7, 14].to_vec()));
+    }
 
     #[test]
     fn test_how_sum() {
