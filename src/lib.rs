@@ -11,6 +11,47 @@
 
 use std::collections::HashMap;
 
+pub fn all_construct(target: &str, bank: &[&str]) -> Vec<Vec<String>> {
+
+    if target.is_empty() {
+        return vec![vec![]];
+    }
+
+    let mut result = Vec::new();
+
+    for word in bank {
+        if target.starts_with(word) {
+            let suffix = &target[word.len()..];
+            let suffix_ways = all_construct(suffix, bank);
+
+            //combine successful combinations
+            for mut way in suffix_ways {
+                way.insert(0, word.to_string());
+                result.push(way);
+            }
+        }
+    }
+
+    return result;
+}
+
+pub fn can_construct(target: &str, vector: &Vec<&str>) -> bool {
+    if target.is_empty() {
+        return true;
+    }
+
+    for word in vector {
+        if target.starts_with(word) {
+            let suffix = &target[word.len()..];
+            if can_construct(suffix, vector) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 pub fn best_sum(target: i64, v: &Vec<i64>) -> Option<Vec<i64>> {
     if target == 0 {
         return Some(vec![]);
@@ -146,6 +187,33 @@ pub fn fib(x: u64) -> u64 {
 mod tests {
     use super::*;
 
+    #[test]
+    fn test_all_construct() {
+        assert_eq!(
+            vec![vec!["purp", "le"], vec!["p", "ur", "p", "le"]],
+            all_construct("purple", &["purp", "p", "ur", "le", "purpl"].to_vec())
+        );
+    }
+
+    #[test]
+    fn test_can_construct() {
+        assert_eq!(true, can_construct("", &["ska", "rd", "te"].to_vec()));
+        assert_eq!(
+            true,
+            can_construct(
+                "skate",
+                &["ska", "rd", "te", "t", "ka", "sk", "boar"].to_vec()
+            )
+        );
+        assert_eq!(false, can_construct("mouse", &["mo", "se"].to_vec()));
+        assert_eq!(
+            false,
+            can_construct(
+                "skateboard",
+                &["bo", "rd", "ate", "t", "ska", "sk", "boar"].to_vec()
+            )
+        );
+    }
     #[test]
     fn test_best_sum() {
         assert_eq!(Some(vec![5, 3]), best_sum(8, &[2, 3, 5].to_vec()));
